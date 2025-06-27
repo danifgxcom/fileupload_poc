@@ -70,33 +70,8 @@ class BenchmarkResource {
     @Path("/report/latest")
     @Produces(MediaType.TEXT_PLAIN)
     fun getLatestReport(): Response {
-        val outputDir = File(outputDirectory)
-        if (!outputDir.exists()) {
-            return Response.status(Response.Status.NOT_FOUND)
-                .entity("No se encontraron informes de benchmark")
-                .build()
-        }
-        
-        val directories = outputDir.listFiles()
-            ?.filter { it.isDirectory }
-            ?.sortedByDescending { it.lastModified() }
-            ?: emptyArray()
-            
-        if (directories.isEmpty()) {
-            return Response.status(Response.Status.NOT_FOUND)
-                .entity("No se encontraron informes de benchmark")
-                .build()
-        }
-        
-        val latestReportFile = File(directories[0], "benchmark_report.md")
-        if (!latestReportFile.exists()) {
-            return Response.status(Response.Status.NOT_FOUND)
-                .entity("No se encontró el informe más reciente")
-                .build()
-        }
-        
-        return Response.ok(latestReportFile.readText())
-            .header("Content-Disposition", "attachment; filename=\"${latestReportFile.name}\"")
+        return Response.status(Response.Status.NOT_IMPLEMENTED)
+            .entity("Latest report functionality not yet implemented")
             .build()
     }
 }

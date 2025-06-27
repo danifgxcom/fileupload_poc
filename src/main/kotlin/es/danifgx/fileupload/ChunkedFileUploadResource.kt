@@ -24,7 +24,7 @@ class ChunkedFileUploadResource {
     
     private val logger = Logger.getLogger(ChunkedFileUploadResource::class.java)
     
-    @ConfigProperty(name = "quarkus.http.body.uploads-directory", defaultValue = "uploads")
+    @ConfigProperty(name = "quarkus.http.body.uploads-directory", defaultValue = "/tmp/uploads")
     lateinit var uploadsDirectory: String
     
     // Almacén para las sesiones de carga activas
@@ -197,12 +197,12 @@ class ChunkedFileUploadResource {
         }
     }
     
-    // Método simple para upload directo (para usar con benchmark)
+    // Método simple para upload directo con streaming (para usar con benchmark)
     @POST
     @jakarta.ws.rs.Path("/chunked")
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
     @Produces(MediaType.APPLICATION_JSON)
-    fun directUpload(fileData: ByteArray): Response {
+    fun directUpload(inputStream: java.io.InputStream): Response {
         val startTime = System.currentTimeMillis()
         
         try {
@@ -212,8 +212,8 @@ class ChunkedFileUploadResource {
             val fileName = UUID.randomUUID().toString() + "_direct.bin"
             val filePath = Paths.get(uploadsDirectory, fileName)
             
-            // Escribir el archivo completo
-            Files.write(filePath, fileData)
+            // Escribir el archivo con streaming directo
+            Files.copy(inputStream, filePath)
             
             val endTime = System.currentTimeMillis()
             val fileSize = Files.size(filePath)

@@ -1,11 +1,8 @@
 plugins {
-    kotlin("jvm") version "1.9.23"
-    kotlin("plugin.allopen") version "1.9.23"
-    id("io.quarkus")
+    kotlin("jvm") version "2.0.21"
+    kotlin("plugin.allopen") version "2.0.21"
+    id("io.quarkus") version "3.17.5"
 }
-
-// Disable incremental compilation with artifact transform to fix Kotlin compatibility issue with Gradle 8.14
-System.setProperty("kotlin.incremental.useClasspathSnapshot", "false")
 
 repositories {
     mavenCentral()
@@ -22,21 +19,13 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("io.quarkus:quarkus-arc")
 
-    // Todas las implementaciones de REST para poder probarlas automáticamente
-    // RESTEasy Classic (modelo bloqueante)
-    implementation("io.quarkus:quarkus-resteasy")
-    implementation("io.quarkus:quarkus-resteasy-multipart")
-    implementation("io.quarkus:quarkus-resteasy-jackson")
-
-    // RESTEasy Reactive (modelo no bloqueante)
-    implementation("io.quarkus:quarkus-resteasy-reactive")
-    implementation("io.quarkus:quarkus-resteasy-reactive-jackson")
+    // RESTEasy Reactive (modelo no bloqueante) - Principal
+    implementation("io.quarkus:quarkus-rest")
+    implementation("io.quarkus:quarkus-rest-jackson")
 
     // HTTP Clients para pruebas
     implementation("io.quarkus:quarkus-rest-client")
     implementation("io.quarkus:quarkus-rest-client-jackson")
-    implementation("io.quarkus:quarkus-rest-client-reactive")
-    implementation("io.quarkus:quarkus-rest-client-reactive-jackson")
 
     // Sistemas de servidor HTTP alternativos
     implementation("io.quarkus:quarkus-vertx")

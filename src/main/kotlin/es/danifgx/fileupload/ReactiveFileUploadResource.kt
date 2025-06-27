@@ -20,7 +20,7 @@ import java.util.*
 @RegisterForReflection
 class ReactiveFileUploadResource {
 
-    @ConfigProperty(name = "quarkus.http.body.uploads-directory", defaultValue = "uploads")
+    @ConfigProperty(name = "quarkus.http.body.uploads-directory", defaultValue = "/tmp/uploads")
     lateinit var uploadsDirectory: String
 
     @POST
@@ -32,7 +32,7 @@ class ReactiveFileUploadResource {
         val startTime = System.currentTimeMillis()
         
         try {
-            val fileName = UUID.randomUUID().toString() + "_" + fileUpload.fileName
+            val fileName = UUID.randomUUID().toString() + "_" + fileUpload.fileName()
             val targetPath = Paths.get(uploadsDirectory, fileName)
             
             // Crear directorio si no existe

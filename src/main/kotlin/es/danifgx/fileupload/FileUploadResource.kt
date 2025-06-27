@@ -3,8 +3,8 @@ package es.danifgx.fileupload
 import jakarta.ws.rs.*
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
-import org.jboss.resteasy.annotations.providers.multipart.MultipartForm
-import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput
+import org.jboss.resteasy.reactive.RestForm
+import org.jboss.resteasy.reactive.multipart.FileUpload
 import java.io.File
 import java.io.InputStream
 import java.nio.file.Files
@@ -18,7 +18,7 @@ import jakarta.enterprise.context.ApplicationScoped
 class FileUploadResource {
 
     companion object {
-        private const val UPLOAD_DIRECTORY = "uploads"
+        private const val UPLOAD_DIRECTORY = "/tmp/uploads"
     }
 
     init {
@@ -33,28 +33,21 @@ class FileUploadResource {
     @Path("/standard")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
-    fun uploadFile(multipartInput: MultipartFormDataInput): Response {
+    fun uploadFile(@RestForm("file") fileUpload: FileUpload): Response {
         val startTime = System.currentTimeMillis()
         
         try {
-            val inputPart = multipartInput.getFormDataMap()["file"]?.get(0)
-                ?: return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(mapOf("error" to "No file found in the request"))
-                    .build()
+            val fileName = UUID.randomUUID().toString() + "_" + fileUpload.fileName()
+            val targetPath = Paths.get(UPLOAD_DIRECTORY, fileName)
             
-            val fileName = UUID.randomUUID().toString() + "_" + inputPart.headers["Content-Disposition"]?.let {
-                it.split("filename=")[1].replace("\"", "")
-            } ?: "unknown_file"
+            // Crear directorio si no existe
+            Files.createDirectories(Paths.get(UPLOAD_DIRECTORY))
             
-            val filePath = Paths.get(UPLOAD_DIRECTORY, fileName)
-            
-            // Guardar archivo
-            inputPart.body.use { inputStream ->
-                Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING)
-            }
+            // Copiar archivo subido a la ubicación final
+            Files.copy(fileUpload.uploadedFile(), targetPath, StandardCopyOption.REPLACE_EXISTING)
             
             val endTime = System.currentTimeMillis()
-            val fileSize = Files.size(filePath)
+            val fileSize = Files.size(targetPath)
             
             return Response.ok(mapOf(
                 "fileName" to fileName,
